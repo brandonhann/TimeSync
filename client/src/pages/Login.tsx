@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Box, Button, TextField, Typography, Container, useTheme, alpha } from '@mui/material';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
+    const theme = useTheme();
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -40,18 +42,87 @@ function Login() {
     };
 
     return (
-        <div>
-            <h1>Login Page</h1>
-            <form onSubmit={handleSubmit}>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" required />
-                <button type="submit">Login</button>
-            </form>
-            <p>Or</p>
-            <button onClick={() => window.location.href = 'http://localhost:3001/api/auth/github'}>Login with GitHub</button>
-            <p>Don't have an account? <Link to="/register">Register here</Link></p>
-        </div>
+        <Box sx={{
+            minHeight: '100vh',
+            bgcolor: theme.palette.background.default,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            color: theme.palette.text.primary,
+            padding: 2,
+        }}>
+            <Container component="main" maxWidth="xs" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                <Box
+                    sx={{
+                        padding: { xs: 2, sm: 4 },
+                        width: '100%',
+                        border: 1,
+                        borderRadius: 1,
+                        background: alpha(theme.palette.primary.main, 0.2),
+                        borderColor: theme.palette.secondary.main,
+                        color: theme.palette.text.primary,
+                        boxShadow: theme.shadows[5],
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Typography component="h1" variant="h5" sx={{ mb: 2 }}>
+                        Login Page
+                    </Typography>
+                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="email"
+                            label="Email Address"
+                            name="email"
+                            autoComplete="email"
+                            autoFocus
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                        />
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            autoComplete="current-password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 3, mb: 2, padding: { xs: 1.5, sm: 2 } }}
+                        >
+                            Login
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => window.location.href = 'http://localhost:3001/api/auth/github'}
+                            sx={{ mt: 1, mb: 2, padding: { xs: 1.5, sm: 2 } }}
+                        >
+                            Login with GitHub
+                        </Button>
+                        <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>
+                            Don't have an account? <Link to="/register" style={{ textDecoration: 'none' }}>Register here</Link>
+                        </Typography>
+                    </Box>
+                </Box>
+            </Container>
+        </Box>
     );
+
 }
 
 export default Login;
