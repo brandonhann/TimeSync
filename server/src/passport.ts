@@ -36,14 +36,17 @@ passport.use(new GitHubStrategy({
     clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     callbackURL: "http://localhost:3001/api/auth/github/callback"
 }, async (accessToken: string, _refreshToken: string, profile: any, done: (err: any, user?: IUser | false) => void) => {
-    const email = profile.emails?.[0]?.value || null;
+    const email = profile.emails?.[0]?.value || `${profile.username}@github.com`;
+    const name = profile.displayName || profile.username;
+
     try {
         let user = await User.findOne({ $or: [{ githubId: profile.id }, { email }] });
         if (!user) {
             user = new User({
                 githubId: profile.id,
-                name: profile.displayName || 'GitHub User',
-                email: email
+                name,
+                email,
+                password: 'defaultpassword'
             });
             await user.save();
         } else {
@@ -59,13 +62,16 @@ passport.use(new GitHubStrategy({
 }));
 
 passport.serializeUser((user: any, done) => {
-    done(null, user.id);
+    done(null, user._id);
 });
 
-passport.deserializeUser((id: string, done) => {
-    User.findById(id, (err: any, user: IUser | null) => {
-        done(err, user);
-    });
+passport.deserializeUser(async (id: string, done) => {
+    try {
+        const user = await User.findById(id).exec();
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
 });
 
 export default passport;

@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import { User } from '../models/User';
+import { User, IUser } from '../models/User';
 
 const router = express.Router();
 
@@ -26,9 +26,8 @@ router.post('/register', async (req, res) => {
     }
 });
 
-
 router.post('/login', (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('local', (err: any, user: any, info: any) => {
+    passport.authenticate('local', (err: any, user: IUser, info: any) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'Authentication failed' });
         }
@@ -48,10 +47,10 @@ router.get('/auth/github',
     passport.authenticate('github', { scope: ['user:email'] }));
 
 router.get('/auth/github/callback',
-    passport.authenticate('github', { failureRedirect: '/login' }),
-    (req, res) => {
-
-        res.redirect('/');
+    passport.authenticate('github', { failureRedirect: 'http://localhost:3000/login' }),
+    (req: Request, res: Response) => {
+        const user = req.user as IUser;
+        res.redirect(`http://localhost:3000?userId=${user._id}`);
     });
 
 export { router as authRoutes };

@@ -2,6 +2,7 @@ import mongoose, { Document, Model, Schema, CallbackError } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 interface IUser extends Document {
+    _id: string;
     email: string;
     password: string;
     name: string;
