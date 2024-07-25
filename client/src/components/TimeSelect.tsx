@@ -165,14 +165,14 @@ const TimeSelect = () => {
             />
             {homeCity && (
                 <TimeBar
-                    label={homeCity.displayLabel}
+                    label={homeCity.displayLabel2}
                     timezone={homeCity.value}
                     sliderHour={sliderHour}
                     isHomeCity={true}
                 />
             )}
             {additionalCities.map(city => (
-                <TimeBar key={city.value} label={city.displayLabel} timezone={city.value} sliderHour={sliderHour} />
+                <TimeBar key={city.value} label={city.displayLabel2} timezone={city.value} sliderHour={sliderHour} />
             ))}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography gutterBottom>Adjust Time:</Typography>
