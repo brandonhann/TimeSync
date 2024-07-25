@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactSelect from 'react-select';
+import ReactSelect, { MultiValue } from 'react-select';
 import { DateTime } from 'luxon';
 import { Typography, Slider, Box, Paper, Button } from '@mui/material';
 
@@ -96,21 +96,28 @@ function TimeSelect() {
     const [localTime, setLocalTime] = useState(DateTime.now().toFormat('hh:mm a'));
 
     useEffect(() => {
-        const fetchHomeCity = async () => {
+        const fetchCities = async () => {
             const userId = localStorage.getItem('userId');
             if (userId) {
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/${userId}`);
                 const data = await response.json();
-                if (data.success && data.homeCity) {
-                    const foundCity = cityOptions.find(option => option.value === data.homeCity);
-                    if (foundCity) {
-                        setHomeCity(foundCity);
+                if (data.success) {
+                    if (data.homeCity) {
+                        const foundCity = cityOptions.find(option => option.value === data.homeCity);
+                        if (foundCity) {
+                            setHomeCity(foundCity);
+                        }
+                    }
+                    if (data.savedCities) {
+                        const savedCityOptions = data.savedCities.map((cityValue: string) =>
+                            cityOptions.find(option => option.value === cityValue)).filter(Boolean) as CityOption[];
+                        setAdditionalCities(savedCityOptions);
                     }
                 }
             }
         };
 
-        fetchHomeCity();
+        fetchCities();
     }, []);
 
     useEffect(() => {
@@ -124,12 +131,28 @@ function TimeSelect() {
         setSliderHour(0);
     };
 
+    const handleCityChange = async (newValue: MultiValue<CityOption>) => {
+        const newCityValues = newValue as CityOption[];
+        setAdditionalCities(newCityValues);
+        const userId = localStorage.getItem('userId');
+        if (userId) {
+            const cityValues = newCityValues.map(city => city.value);
+            await fetch(`${process.env.REACT_APP_API_URL}/api/user/${userId}/savedCities`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ savedCities: cityValues }),
+            });
+        }
+    };
+
     return (
         <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mt: 4, position: 'relative' }}>
             <Typography variant="h6" gutterBottom>Add Cities to Compare</Typography>
             <ReactSelect
                 options={cityOptions.filter(option => option.value !== homeCity?.value)}
-                onChange={(newValue: any) => setAdditionalCities(newValue || [])}
+                onChange={handleCityChange}
                 isMulti
                 value={additionalCities}
                 getOptionLabel={(option: CityOption) => option.label}

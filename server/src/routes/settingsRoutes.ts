@@ -13,7 +13,12 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
 
         const savedCities = await SavedCities.findOne({ user: user._id });
 
-        res.json({ success: true, user, homeCity: savedCities?.homeCity || null });
+        res.json({
+            success: true,
+            user,
+            homeCity: savedCities?.homeCity || null,
+            savedCities: savedCities?.savedCities || []
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: 'An unexpected error occurred', error });
     }
@@ -34,6 +39,26 @@ router.put('/user/:userId/homeCity', async (req: Request, res: Response) => {
         await savedCities.save();
 
         res.json({ success: true, message: 'Home city updated successfully', homeCity });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'An unexpected error occurred', error });
+    }
+});
+
+router.put('/user/:userId/savedCities', async (req: Request, res: Response) => {
+    try {
+        const { savedCities } = req.body;
+        const userId = req.params.userId;
+
+        let userSavedCities = await SavedCities.findOne({ user: userId });
+        if (!userSavedCities) {
+            userSavedCities = new SavedCities({ user: userId, homeCity: null, savedCities });
+        } else {
+            userSavedCities.savedCities = savedCities;
+        }
+
+        await userSavedCities.save();
+
+        res.json({ success: true, message: 'Saved cities updated successfully', savedCities });
     } catch (error) {
         res.status(500).json({ success: false, message: 'An unexpected error occurred', error });
     }
