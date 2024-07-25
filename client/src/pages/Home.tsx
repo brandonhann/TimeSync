@@ -6,6 +6,7 @@ import theme from '../theme';
 import Landing from '../components/Landing';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
+import TimeSelect from '../components/TimeSelect';
 
 function Home() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -51,15 +52,7 @@ function Home() {
                         p: 2,
                     }}
                 >
-                    <Typography variant="h1" sx={{ mt: 4, mb: 2 }}>
-                        Home Page
-                    </Typography>
-                    <Typography variant="body1" sx={{ mb: 3 }}>
-                        Welcome back! Explore what's new!
-                    </Typography>
-                    <Button variant="contained" color="primary">
-                        Explore
-                    </Button>
+                    <TimeSelect />
                 </Box>
                 <Footer />
             </Box>
