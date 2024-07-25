@@ -1,40 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import theme from '../theme';
 import { Box, Typography, Container, CssBaseline, Button } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import ReactSelect from 'react-select';
+import { ThemeProvider } from '@mui/material/styles';
+import ReactSelect, { GroupBase } from 'react-select';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
-
-interface CityOption {
-    value: string;
-    label: string;
-}
-
-const cityOptions: CityOption[] = [
-    { value: 'America/New_York', label: 'New York' },
-    { value: 'Europe/London', label: 'London' },
-    { value: 'Asia/Tokyo', label: 'Tokyo' }
-];
-
-const selectStyles = {
-    option: (provided: any, state: any) => ({
-        ...provided,
-        color: 'black',
-    }),
-};
-
-const darkTheme = createTheme({
-    palette: {
-        mode: 'dark',
-        background: {
-            default: '#121212',
-            paper: '#1d1d1d',
-        },
-        text: {
-            primary: '#ffffff',
-        },
-    },
-});
+import { cityOptions, CityOption } from '../data/CityOptions';
+import { selectStyles } from '../css/selectSyles';
 
 interface User {
     name: string;
@@ -94,10 +66,22 @@ const Settings: React.FC = () => {
         }
     };
 
-    const homeCityOptions = cityOptions.filter(option => !savedCities.some(city => city.value === option.value));
+    // Filter and group options excluding the saved cities and the current home city
+    const filteredCityOptions = cityOptions.filter(option => !savedCities.some(city => city.value === option.value) && option !== homeCity);
+    const groupedHomeCityOptions = filteredCityOptions.reduce((groups, option) => {
+        const groupIndex = groups.findIndex(group => group.label === option.region);
+        if (groupIndex !== -1) {
+            const newGroup = { ...groups[groupIndex] };
+            newGroup.options = [...newGroup.options, option];
+            groups = [...groups.slice(0, groupIndex), newGroup, ...groups.slice(groupIndex + 1)];
+        } else {
+            groups.push({ label: option.region, options: [option] });
+        }
+        return groups;
+    }, [] as GroupBase<CityOption>[]);
 
     return (
-        <ThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={theme}>
             <CssBaseline />
             <Box display="flex" flexDirection="column" minHeight="100vh">
                 <Nav />
@@ -115,10 +99,11 @@ const Settings: React.FC = () => {
                     <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto' }}>
                         <Typography variant="h6" gutterBottom>Select Your Home City</Typography>
                         <ReactSelect
-                            options={homeCityOptions}
+                            options={groupedHomeCityOptions}
                             onChange={handleHomeCityChange}
                             value={homeCity}
-                            getOptionLabel={(option: CityOption) => option.label}
+                            formatGroupLabel={(group) => group.label}
+                            getOptionLabel={(option: CityOption) => option.displayLabel.split(' - ')[1]}
                             getOptionValue={(option: CityOption) => option.value}
                             styles={selectStyles}
                         />

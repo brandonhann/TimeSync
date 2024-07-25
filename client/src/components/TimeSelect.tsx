@@ -1,18 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactSelect, { MultiValue } from 'react-select';
+import ReactSelect, { GroupBase, MultiValue } from 'react-select';
 import { DateTime } from 'luxon';
 import { Typography, Slider, Box, Paper, Button } from '@mui/material';
-
-interface CityOption {
-    value: string;
-    label: string;
-}
-
-const cityOptions: CityOption[] = [
-    { value: 'America/New_York', label: 'New York' },
-    { value: 'Europe/London', label: 'London' },
-    { value: 'Asia/Tokyo', label: 'Tokyo' }
-];
+import { cityOptions, CityOption } from '../data/CityOptions';
+import { selectStyles } from '../css/selectSyles'
 
 interface TimeBarProps {
     label: string;
@@ -20,13 +11,6 @@ interface TimeBarProps {
     sliderHour: number;
     isHomeCity?: boolean;
 }
-
-const selectStyles = {
-    option: (provided: any, state: any) => ({
-        ...provided,
-        color: 'black',
-    }),
-};
 
 const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCity }) => {
     const currentHour = DateTime.now().setZone(timezone).hour;
@@ -54,7 +38,7 @@ const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCi
             <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <Typography variant="subtitle1" gutterBottom>
                     {isHomeCity && <Box component="span" sx={{ color: 'yellow', mr: 1 }}>⭐</Box>}
-                    {label} ({timezone})
+                    {label} ({timezone.replace(/_/g, ' ')})
                 </Typography>
                 <Typography variant="subtitle1" gutterBottom>
                     {timeDifference >= 0 ? `+${timeDifference} hours` : `${timeDifference} hours`}
@@ -89,7 +73,7 @@ const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCi
     );
 };
 
-function TimeSelect() {
+const TimeSelect = () => {
     const [homeCity, setHomeCity] = useState<CityOption | null>(null);
     const [additionalCities, setAdditionalCities] = useState<CityOption[]>([]);
     const [sliderHour, setSliderHour] = useState(0);
@@ -147,6 +131,20 @@ function TimeSelect() {
         }
     };
 
+    const filteredAndGroupedOptions = cityOptions
+        .filter(option => option !== homeCity && !additionalCities.includes(option))
+        .reduce((groups, option) => {
+            const groupIndex = groups.findIndex(group => group.label === option.region);
+            if (groupIndex !== -1) {
+                const newGroup = { ...groups[groupIndex] };
+                newGroup.options = [...newGroup.options, option];
+                groups = [...groups.slice(0, groupIndex), newGroup, ...groups.slice(groupIndex + 1)];
+            } else {
+                groups.push({ label: option.region, options: [option] });
+            }
+            return groups;
+        }, [] as GroupBase<CityOption>[]);
+
     return (
         <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mt: 4, position: 'relative' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -156,24 +154,25 @@ function TimeSelect() {
                 </Typography>
             </Box>
             <ReactSelect
-                options={cityOptions.filter(option => option.value !== homeCity?.value)}
+                options={filteredAndGroupedOptions}
                 onChange={handleCityChange}
                 isMulti
                 value={additionalCities}
-                getOptionLabel={(option: CityOption) => option.label}
+                formatGroupLabel={(group) => group.label}
+                getOptionLabel={(option: CityOption) => option.displayLabel.split(' - ')[1]}
                 getOptionValue={(option: CityOption) => option.value}
                 styles={selectStyles}
             />
             {homeCity && (
                 <TimeBar
-                    label={homeCity.label}
+                    label={homeCity.displayLabel}
                     timezone={homeCity.value}
                     sliderHour={sliderHour}
                     isHomeCity={true}
                 />
             )}
             {additionalCities.map(city => (
-                <TimeBar key={city.value} label={city.label} timezone={city.value} sliderHour={sliderHour} />
+                <TimeBar key={city.value} label={city.displayLabel} timezone={city.value} sliderHour={sliderHour} />
             ))}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography gutterBottom>Adjust Time:</Typography>
