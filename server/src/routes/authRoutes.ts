@@ -47,10 +47,10 @@ router.get('/auth/github',
     passport.authenticate('github', { scope: ['user:email'] }));
 
 router.get('/auth/github/callback',
-    passport.authenticate('github', { failureRedirect: 'http://localhost:3000/login' }),
+    passport.authenticate('github', { failureRedirect: `${process.env.REACT_APP_CLIENT_URL}/login` }),
     (req: Request, res: Response) => {
         const user = req.user as IUser;
-        res.redirect(`http://localhost:3000?userId=${user._id}`);
+        res.redirect(`${process.env.REACT_APP_CLIENT_URL}?userId=${user._id}`);
     });
 
 export { router as authRoutes };

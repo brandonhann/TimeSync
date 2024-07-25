@@ -3,11 +3,16 @@ import { Strategy as GitHubStrategy } from 'passport-github2';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { User, IUser } from './models/User';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
 
-require('dotenv').config();
+dotenv.config();
 
 if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
     throw new Error('GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET must be set');
+}
+
+if (!process.env.REACT_APP_API_URL) {
+    throw new Error('REACT_APP_API_URL must be set');
 }
 
 passport.use(new LocalStrategy({
@@ -34,7 +39,7 @@ passport.use(new LocalStrategy({
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID!,
     clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    callbackURL: "http://localhost:3001/api/auth/github/callback"
+    callbackURL: `${process.env.REACT_APP_API_URL}/api/auth/github/callback`
 }, async (accessToken: string, _refreshToken: string, profile: any, done: (err: any, user?: IUser | false) => void) => {
     const email = profile.emails?.[0]?.value || `${profile.username}@github.com`;
     const name = profile.displayName || profile.username;

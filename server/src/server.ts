@@ -17,6 +17,13 @@ if (!process.env.SESSION_SECRET) {
     process.exit(1);
 }
 
+if (!process.env.REACT_APP_CLIENT_URL) {
+    console.error('FATAL ERROR: REACT_APP_CLIENT_URL is not defined.');
+    process.exit(1);
+}
+
+const PORT = process.env.PORT || 3001;
+
 app.use(session({
     secret: process.env.SESSION_SECRET!,
     resave: false,
@@ -31,7 +38,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.REACT_APP_CLIENT_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
@@ -39,4 +46,4 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use('/api', authRoutes);
 
-app.listen(3001, () => console.log('Server running on http://localhost:3001'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

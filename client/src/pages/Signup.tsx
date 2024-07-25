@@ -11,7 +11,7 @@ function Signup() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const response = await fetch('http://localhost:3001/api/register', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, name }),
@@ -107,7 +107,7 @@ function Signup() {
                             fullWidth
                             variant="contained"
                             color="secondary"
-                            onClick={() => window.location.href = 'http://localhost:3001/api/auth/github'}
+                            onClick={() => window.location.href = `${process.env.REACT_APP_API_URL}/api/auth/github`}
                             sx={{ mt: 1, mb: 2, padding: { xs: 1.5, sm: 2 } }}
                         >
                             Register with GitHub
