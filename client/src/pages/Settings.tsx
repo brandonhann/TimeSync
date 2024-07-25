@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Container, CssBaseline } from '@mui/material';
+import { Box, Typography, Container, CssBaseline, Button } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ReactSelect from 'react-select';
 import Nav from '../components/Nav';
@@ -53,6 +53,10 @@ const Settings: React.FC = () => {
                 const data = await response.json();
                 if (data.success) {
                     setUserInfo(data.user);
+                    const foundCity = cityOptions.find(option => option.value === data.homeCity);
+                    if (foundCity) {
+                        setHomeCity(foundCity);
+                    }
                 }
             }
         };
@@ -60,21 +64,31 @@ const Settings: React.FC = () => {
         fetchUserInfo();
     }, []);
 
-    useEffect(() => {
-        const savedHomeCity = localStorage.getItem('homeCity');
-        if (savedHomeCity) {
-            setHomeCity(JSON.parse(savedHomeCity));
-        }
-    }, []);
-
-    useEffect(() => {
-        if (homeCity) {
-            localStorage.setItem('homeCity', JSON.stringify(homeCity));
-        }
-    }, [homeCity]);
-
-    const handleHomeCityChange = (newValue: CityOption | null) => {
+    const handleHomeCityChange = async (newValue: CityOption | null) => {
         setHomeCity(newValue);
+        const userId = localStorage.getItem('userId');
+        if (userId && newValue) {
+            await fetch(`${process.env.REACT_APP_API_URL}/api/user/${userId}/homeCity`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ homeCity: newValue.value }),
+            });
+        }
+    };
+
+    const handleRemoveHomeCity = async () => {
+        setHomeCity(null);
+        const userId = localStorage.getItem('userId');
+        if (userId) {
+            await fetch(`${process.env.REACT_APP_API_URL}/api/user/${userId}/homeCity`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        }
     };
 
     return (
@@ -103,6 +117,22 @@ const Settings: React.FC = () => {
                             getOptionValue={(option: CityOption) => option.value}
                             styles={selectStyles}
                         />
+                        {homeCity && (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleRemoveHomeCity}
+                                sx={{
+                                    mt: 2,
+                                    backgroundColor: '#f44336',
+                                    '&:hover': {
+                                        backgroundColor: '#d32f2f',
+                                    }
+                                }}
+                            >
+                                Remove
+                            </Button>
+                        )}
                     </Box>
                 </Container>
                 <Box sx={{ mt: 'auto' }}>

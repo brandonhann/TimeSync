@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Select from 'react-select';
+import ReactSelect from 'react-select';
 import { DateTime } from 'luxon';
 import { Typography, Slider, Box, Paper } from '@mui/material';
 
@@ -18,6 +18,7 @@ interface TimeBarProps {
     label: string;
     timezone: string;
     sliderHour: number;
+    isHomeCity?: boolean;
 }
 
 const selectStyles = {
@@ -27,7 +28,7 @@ const selectStyles = {
     }),
 };
 
-const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour }) => {
+const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCity }) => {
     const currentHour = DateTime.now().setZone(timezone).hour;
     const sliderAdjustedHour = (currentHour + sliderHour + 24) % 24;
 
@@ -47,8 +48,9 @@ const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour }) => {
     }, [sliderHour, timezone, sliderAdjustedHour]);
 
     return (
-        <Box sx={{ my: 2, p: 2, border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle1" gutterBottom>
+        <Box sx={{ my: 2, p: 2, border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center' }}>
+            {isHomeCity && <Box component="span" sx={{ color: 'yellow', mr: 1 }}>⭐</Box>}
+            <Typography variant="subtitle1" gutterBottom sx={{ mr: 2 }}>
                 {label} ({timezone})
             </Typography>
             <Box ref={hoursRef} sx={{
@@ -84,51 +86,44 @@ function TimeSelect() {
     const [additionalCities, setAdditionalCities] = useState<CityOption[]>([]);
     const [sliderHour, setSliderHour] = useState(0);
 
-
     useEffect(() => {
-        const savedHomeCity = localStorage.getItem('homeCity');
-        if (savedHomeCity) {
-            setHomeCity(JSON.parse(savedHomeCity));
-        }
+        const fetchHomeCity = async () => {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/${userId}`);
+                const data = await response.json();
+                if (data.success && data.homeCity) {
+                    const foundCity = cityOptions.find(option => option.value === data.homeCity);
+                    if (foundCity) {
+                        setHomeCity(foundCity);
+                    }
+                }
+            }
+        };
+
+        fetchHomeCity();
     }, []);
-
-
-    useEffect(() => {
-        if (homeCity) {
-            localStorage.setItem('homeCity', JSON.stringify(homeCity));
-        }
-    }, [homeCity]);
-
-    const handleHomeCityChange = (newValue: CityOption | null) => {
-        setHomeCity(newValue);
-        if (newValue) {
-
-            setAdditionalCities(additionalCities.filter(city => city.value !== newValue.value));
-        }
-    };
 
     return (
         <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mt: 4 }}>
-            <Typography variant="h6" gutterBottom>Select Your Home City</Typography>
-            <Select
-                options={cityOptions}
-                onChange={handleHomeCityChange}
-                value={homeCity}
-                getOptionLabel={option => option.label}
-                getOptionValue={option => option.value}
-                styles={selectStyles}
-            />
             <Typography variant="h6" gutterBottom>Add Cities to Compare</Typography>
-            <Select
+            <ReactSelect
                 options={cityOptions.filter(option => option.value !== homeCity?.value)}
                 onChange={(newValue: any) => setAdditionalCities(newValue || [])}
                 isMulti
                 value={additionalCities}
-                getOptionLabel={option => option.label}
-                getOptionValue={option => option.value}
+                getOptionLabel={(option: CityOption) => option.label}
+                getOptionValue={(option: CityOption) => option.value}
                 styles={selectStyles}
             />
-            {homeCity && <TimeBar label={homeCity.label} timezone={homeCity.value} sliderHour={sliderHour} />}
+            {homeCity && (
+                <TimeBar
+                    label={homeCity.label}
+                    timezone={homeCity.value}
+                    sliderHour={sliderHour}
+                    isHomeCity={true}
+                />
+            )}
             {additionalCities.map(city => (
                 <TimeBar key={city.value} label={city.label} timezone={city.value} sliderHour={sliderHour} />
             ))}

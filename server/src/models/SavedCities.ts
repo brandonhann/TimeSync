@@ -3,7 +3,7 @@ import { IUser } from './User';
 
 interface ISavedCities extends Document {
     user: IUser['_id'];
-    homeCity: string;
+    homeCity: string | null;
     savedCities: string[];
 }
 

@@ -1,6 +1,8 @@
-import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import React from 'react';
+import { Box, AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const StyledLink = styled(Link)(({ theme }) => ({
     textDecoration: 'none',
@@ -25,12 +27,22 @@ const Nav = () => {
                         TimeSync
                     </StyledLink>
                 </Typography>
-                <Button color="error" onClick={handleLogout}>
-                    Logout
-                </Button>
+                <Box display="flex" alignItems="center">
+                    <IconButton
+                        component={Link}
+                        to="/settings"
+                        color="inherit"
+                        sx={{ marginRight: 2 }}
+                    >
+                        <SettingsIcon />
+                    </IconButton>
+                    <Button color="error" onClick={handleLogout}>
+                        Logout
+                    </Button>
+                </Box>
             </Toolbar>
         </AppBar>
     );
 };
 
-export default Nav
+export default Nav;
