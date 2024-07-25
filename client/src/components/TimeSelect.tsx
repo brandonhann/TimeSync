@@ -134,8 +134,8 @@ function TimeSelect() {
             ))}
             <Typography gutterBottom>Adjust Time:</Typography>
             <Slider
-                min={0}
-                max={23}
+                min={1}
+                max={24}
                 step={1}
                 value={sliderHour}
                 onChange={(e, newValue) => setSliderHour(newValue as number)}

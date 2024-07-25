@@ -7,6 +7,7 @@ import './index.css';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -17,13 +18,13 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </div>
       </Router>
     </ThemeProvider>
   );
 }
-
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -33,3 +34,5 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+export default App;

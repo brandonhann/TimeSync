@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import connectDB from './db';
 import bodyParser from 'body-parser';
 import { authRoutes } from './routes/authRoutes';
+import { settingsRoutes } from './routes/settingsRoutes';
 
 dotenv.config();
 connectDB();
@@ -45,5 +46,6 @@ app.use(cors({
 
 app.use(bodyParser.json());
 app.use('/api', authRoutes);
+app.use('/api', settingsRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

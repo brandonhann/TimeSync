@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, ThemeProvider } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/material';
 import theme from '../theme';
 import Landing from '../components/Landing';
 import Nav from '../components/Nav';
