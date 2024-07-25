@@ -149,7 +149,12 @@ function TimeSelect() {
 
     return (
         <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mt: 4, position: 'relative' }}>
-            <Typography variant="h6" gutterBottom>Add Cities to Compare</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" gutterBottom>Add Cities to Compare</Typography>
+                <Typography variant="subtitle1" sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    Your Local Time: {localTime}
+                </Typography>
+            </Box>
             <ReactSelect
                 options={cityOptions.filter(option => option.value !== homeCity?.value)}
                 onChange={handleCityChange}
@@ -159,11 +164,6 @@ function TimeSelect() {
                 getOptionValue={(option: CityOption) => option.value}
                 styles={selectStyles}
             />
-            <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
-                <Typography variant="subtitle1" sx={{ textAlign: 'right' }}>
-                    Your Local Time: {localTime}
-                </Typography>
-            </Box>
             {homeCity && (
                 <TimeBar
                     label={homeCity.label}

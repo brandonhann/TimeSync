@@ -43,6 +43,7 @@ interface User {
 
 const Settings: React.FC = () => {
     const [homeCity, setHomeCity] = useState<CityOption | null>(null);
+    const [savedCities, setSavedCities] = useState<CityOption[]>([]);
     const [userInfo, setUserInfo] = useState<User | null>(null);
 
     useEffect(() => {
@@ -53,10 +54,12 @@ const Settings: React.FC = () => {
                 const data = await response.json();
                 if (data.success) {
                     setUserInfo(data.user);
-                    const foundCity = cityOptions.find(option => option.value === data.homeCity);
-                    if (foundCity) {
-                        setHomeCity(foundCity);
+                    const foundHomeCity = cityOptions.find(option => option.value === data.homeCity);
+                    if (foundHomeCity) {
+                        setHomeCity(foundHomeCity);
                     }
+                    const savedCityOptions = cityOptions.filter(option => data.savedCities.includes(option.value));
+                    setSavedCities(savedCityOptions);
                 }
             }
         };
@@ -91,6 +94,8 @@ const Settings: React.FC = () => {
         }
     };
 
+    const homeCityOptions = cityOptions.filter(option => !savedCities.some(city => city.value === option.value));
+
     return (
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
@@ -110,7 +115,7 @@ const Settings: React.FC = () => {
                     <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto' }}>
                         <Typography variant="h6" gutterBottom>Select Your Home City</Typography>
                         <ReactSelect
-                            options={cityOptions}
+                            options={homeCityOptions}
                             onChange={handleHomeCityChange}
                             value={homeCity}
                             getOptionLabel={(option: CityOption) => option.label}
