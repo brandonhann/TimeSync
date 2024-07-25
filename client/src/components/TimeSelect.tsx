@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactSelect from 'react-select';
 import { DateTime } from 'luxon';
-import { Typography, Slider, Box, Paper } from '@mui/material';
+import { Typography, Slider, Box, Paper, Button } from '@mui/material';
 
 interface CityOption {
     value: string;
@@ -31,6 +31,8 @@ const selectStyles = {
 const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCity }) => {
     const currentHour = DateTime.now().setZone(timezone).hour;
     const sliderAdjustedHour = (currentHour + sliderHour + 24) % 24;
+    const localHour = DateTime.now().hour;
+    const timeDifference = sliderAdjustedHour - localHour;
 
     const hours = Array.from({ length: 24 }, (_, index) => {
         return DateTime.now().setZone(timezone).startOf('day').plus({ hours: index }).toFormat('h a');
@@ -48,14 +50,20 @@ const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCi
     }, [sliderHour, timezone, sliderAdjustedHour]);
 
     return (
-        <Box sx={{ my: 2, p: 2, border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center' }}>
-            {isHomeCity && <Box component="span" sx={{ color: 'yellow', mr: 1 }}>⭐</Box>}
-            <Typography variant="subtitle1" gutterBottom sx={{ mr: 2 }}>
-                {label} ({timezone})
-            </Typography>
+        <Box sx={{ my: 2, p: 2, border: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <Typography variant="subtitle1" gutterBottom>
+                    {isHomeCity && <Box component="span" sx={{ color: 'yellow', mr: 1 }}>⭐</Box>}
+                    {label} ({timezone})
+                </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                    {timeDifference >= 0 ? `+${timeDifference} hours` : `${timeDifference} hours`}
+                </Typography>
+            </Box>
             <Box ref={hoursRef} sx={{
                 display: 'flex',
                 overflowX: 'auto',
+                width: '100%',
                 '&::-webkit-scrollbar': {
                     display: 'none'
                 },
@@ -85,6 +93,7 @@ function TimeSelect() {
     const [homeCity, setHomeCity] = useState<CityOption | null>(null);
     const [additionalCities, setAdditionalCities] = useState<CityOption[]>([]);
     const [sliderHour, setSliderHour] = useState(0);
+    const [localTime, setLocalTime] = useState(DateTime.now().toFormat('hh:mm a'));
 
     useEffect(() => {
         const fetchHomeCity = async () => {
@@ -104,8 +113,19 @@ function TimeSelect() {
         fetchHomeCity();
     }, []);
 
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setLocalTime(DateTime.now().toFormat('hh:mm a'));
+        }, 60000);
+        return () => clearInterval(intervalId);
+    }, []);
+
+    const handleResetSlider = () => {
+        setSliderHour(0);
+    };
+
     return (
-        <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mt: 4 }}>
+        <Box sx={{ width: '100%', maxWidth: 600, mx: 'auto', mt: 4, position: 'relative' }}>
             <Typography variant="h6" gutterBottom>Add Cities to Compare</Typography>
             <ReactSelect
                 options={cityOptions.filter(option => option.value !== homeCity?.value)}
@@ -116,6 +136,11 @@ function TimeSelect() {
                 getOptionValue={(option: CityOption) => option.value}
                 styles={selectStyles}
             />
+            <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
+                <Typography variant="subtitle1" sx={{ textAlign: 'right' }}>
+                    Your Local Time: {localTime}
+                </Typography>
+            </Box>
             {homeCity && (
                 <TimeBar
                     label={homeCity.label}
@@ -127,10 +152,21 @@ function TimeSelect() {
             {additionalCities.map(city => (
                 <TimeBar key={city.value} label={city.label} timezone={city.value} sliderHour={sliderHour} />
             ))}
-            <Typography gutterBottom>Adjust Time:</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography gutterBottom>Adjust Time:</Typography>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleResetSlider}
+                    sx={{ ml: 2, padding: '4px 8px', fontSize: '0.75rem' }}
+                    size="small"
+                >
+                    Reset to Local Time
+                </Button>
+            </Box>
             <Slider
-                min={1}
-                max={24}
+                min={0}
+                max={23}
                 step={1}
                 value={sliderHour}
                 onChange={(e, newValue) => setSliderHour(newValue as number)}
