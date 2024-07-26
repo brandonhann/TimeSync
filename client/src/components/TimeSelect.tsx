@@ -18,6 +18,11 @@ const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCi
     const localHour = DateTime.now().hour;
     const timeDifference = sliderAdjustedHour - localHour;
 
+    const parts = timezone.split('/');
+    const region = parts[0].replace(/_/g, ' ');
+    const cityName = parts.pop()!.replace(/_/g, ' ');
+    const formattedLabel = `${cityName} (${region})`;
+
     const hours = Array.from({ length: 24 }, (_, index) => {
         return DateTime.now().setZone(timezone).startOf('day').plus({ hours: index }).toFormat('h a');
     });
@@ -38,7 +43,7 @@ const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCi
             <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <Typography variant="subtitle1" gutterBottom>
                     {isHomeCity && <Box component="span" sx={{ color: 'yellow', mr: 1 }}>⭐</Box>}
-                    {label} ({timezone.replace(/_/g, ' ')})
+                    {formattedLabel}
                 </Typography>
                 <Typography variant="subtitle1" gutterBottom>
                     {timeDifference >= 0 ? `+${timeDifference} hours` : `${timeDifference} hours`}
@@ -54,20 +59,38 @@ const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCi
                 '-ms-overflow-style': 'none',
                 'scrollbar-width': 'none'
             }}>
-                {hours.map((hour, index) => (
-                    <Paper key={index} elevation={index === sliderAdjustedHour ? 4 : 1}
-                        sx={{
-                            width: '40px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            m: '2px',
-                            bgcolor: index === sliderAdjustedHour ? 'primary.main' : 'background.paper',
-                            color: index === sliderAdjustedHour ? 'primary.contrastText' : 'text.primary'
-                        }}>
-                        {hour}
-                    </Paper>
-                ))}
+                {hours.map((hour, index) => {
+                    const hourValue = parseInt(hour.slice(0, -3));
+                    const isPM = hour.slice(-2) === 'PM';
+                    const numericHour = (hourValue % 12) + (isPM ? 12 : 0);
+                    const isNight = numericHour < 6 || numericHour >= 20;
+                    const activeGradient = `linear-gradient(to bottom, #dc2626, #991b1b)`;
+                    const nightGradient = `linear-gradient(to bottom, #1e40af, #172554)`;
+                    const dayGradient = `linear-gradient(to bottom, #fef9c3, #fde047)`;
+
+                    return (
+                        <Paper key={index} elevation={index === sliderAdjustedHour ? 4 : 1}
+                            sx={{
+                                width: '40px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                m: '2px',
+                                p: '4px',
+                                background: index === sliderAdjustedHour ? activeGradient :
+                                    (isNight ? nightGradient : dayGradient),
+                                color: index === sliderAdjustedHour ? '#fef2f2' : (isNight ? '#dbeafe' : '#422006')
+                            }}>
+                            <Typography variant="body2" sx={{ fontSize: '1rem', lineHeight: 1 }}>
+                                {hour.slice(0, -3)}
+                            </Typography>
+                            <Typography variant="caption" sx={{ fontSize: '0.75rem', lineHeight: 1 }}>
+                                {hour.slice(-2)}
+                            </Typography>
+                        </Paper>
+                    );
+                })}
             </Box>
         </Box>
     );
