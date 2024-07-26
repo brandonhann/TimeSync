@@ -21,6 +21,7 @@ React
 - **TypeScript**: Adds static types to JavaScript for better code quality and maintainability.
 - **Axios**: Used for making HTTP requests to external services.
 - **Luxon**: A powerful library for working with dates and times.
+- **tzdata**: Provides timezone data which can be used in unison with date-time libraries like Luxon.
 - **@mui/material, @mui/icons-material, @mui/lab**: Material-UI components for designing a modern, responsive UI.
 - **React Select**: Provides enhanced select components.
 - **Nodemon** (Development): Helps automatically restart the server after code changes.
