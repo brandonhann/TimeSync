@@ -37,7 +37,6 @@ function Home() {
                     display: 'flex',
                     flexDirection: 'column',
                     minHeight: '100vh',
-                    bgcolor: theme.palette.background.default,
                     color: theme.palette.text.primary,
                 }}
             >

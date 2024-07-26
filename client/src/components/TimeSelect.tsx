@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactSelect, { GroupBase, MultiValue } from 'react-select';
 import { DateTime } from 'luxon';
-import { Typography, Slider, Box, Paper, Button } from '@mui/material';
+import { Typography, Slider, Box, Paper, Button, alpha } from '@mui/material';
 import { cityOptions, CityOption } from '../data/CityOptions';
 import { selectStyles } from '../css/selectSyles'
+import theme from '../theme';
 
 interface TimeBarProps {
     label: string;
@@ -39,7 +40,7 @@ const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, isHomeCi
     }, [sliderHour, timezone, sliderAdjustedHour]);
 
     return (
-        <Box sx={{ my: 2, p: 2, border: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box sx={{ backgroundColor: alpha(theme.palette.primary.dark, 0.5), boxShadow: 5, borderRadius: '4px', my: 2, p: 2, border: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <Typography variant="subtitle1" gutterBottom>
                     {isHomeCity && <Box component="span" sx={{ color: 'yellow', mr: 1 }}>⭐</Box>}
