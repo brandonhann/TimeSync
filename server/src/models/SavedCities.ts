@@ -9,7 +9,7 @@ interface ISavedCities extends Document {
 
 const savedCitiesSchema = new Schema<ISavedCities>({
     user: { type: Types.ObjectId as any, ref: 'User', required: true, unique: true },
-    homeCity: { type: String, required: true },
+    homeCity: { type: String, required: false },
     savedCities: [{ type: String }]
 });
 
