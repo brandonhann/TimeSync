@@ -3,6 +3,7 @@ import { Box, AppBar, Toolbar, Typography, Button, IconButton } from '@mui/mater
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import SettingsIcon from '@mui/icons-material/Settings';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const StyledLink = styled(Link)(({ theme }) => ({
     textDecoration: 'none',
@@ -22,7 +23,8 @@ const Nav = () => {
     return (
         <AppBar position="static">
             <Toolbar sx={{ justifyContent: 'space-between' }}>
-                <Typography variant="h6" component="div">
+                <Typography variant="h6" component="div" sx={{ display: 'flex', alignItems: 'center' }}>
+                    <AccessTimeIcon sx={{ mr: 1 }} /> {/* Clock icon next to the label */}
                     <StyledLink to="/" sx={{ flexGrow: 1 }}>
                         TimeSync
                     </StyledLink>

@@ -10,6 +10,12 @@ function Login() {
     const theme = useTheme();
 
     useEffect(() => {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+        if (isLoggedIn) {
+            navigate('/');
+        }
+
         const params = new URLSearchParams(location.search);
         const userId = params.get('userId');
 

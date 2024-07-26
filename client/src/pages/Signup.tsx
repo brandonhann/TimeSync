@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, Typography, Container, useTheme, alpha } from '@mui/material';
 
@@ -8,6 +8,14 @@ function Signup() {
     const [name, setName] = useState('');
     const navigate = useNavigate();
     const theme = useTheme();
+
+    useEffect(() => {
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+        if (isLoggedIn) {
+            navigate('/');
+        }
+    });
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
