@@ -61,7 +61,7 @@ export const TimeBar: React.FC<TimeBarProps> = ({ label, timezone, sliderHour, i
                     const hourValue = parseInt(hour.slice(0, -3));
                     const isPM = hour.slice(-2) === 'PM';
                     const numericHour = (hourValue % 12) + (isPM ? 12 : 0);
-                    const isNight = numericHour < 6 || numericHour >= 20;
+                    const isNight = numericHour < 6 || numericHour >= 19;
                     const activeGradient = `linear-gradient(to bottom, #dc2626, #991b1b)`;
                     const nightGradient = `linear-gradient(to bottom, #1e40af, #172554)`;
                     const dayGradient = `linear-gradient(to bottom, #fef9c3, #fde047)`;
